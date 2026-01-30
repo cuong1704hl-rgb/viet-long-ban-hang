@@ -223,6 +223,7 @@ const App: React.FC = () => {
       <Navbar
         user={state.currentUser}
         onNavigate={setCurrentPage}
+        onLogout={handleLogout}
         cartCount={state.cart.reduce((a, b) => a + b.quantity, 0)}
       />
 
@@ -242,6 +243,7 @@ const App: React.FC = () => {
           onDeleteProduct={handleDeleteProduct}
           onUpdateOrderStatus={updateOrder}
           onExportOrders={handleExportOrders}
+          onLogout={handleLogout}
         />
       ) : (
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

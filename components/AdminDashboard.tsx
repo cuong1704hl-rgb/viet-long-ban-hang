@@ -9,6 +9,7 @@ interface AdminDashboardProps {
     onDeleteProduct: (id: string) => void;
     onUpdateOrderStatus: (orderId: string, status: OrderStatus) => void;
     onExportOrders: () => void;
+    onLogout?: () => void;
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
@@ -18,7 +19,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     onUpdateProduct,
     onDeleteProduct,
     onUpdateOrderStatus,
-    onExportOrders
+    onExportOrders,
+    onLogout
 }) => {
     const [activeTab, setActiveTab] = useState<'products' | 'orders'>('products');
     const [showAddProduct, setShowAddProduct] = useState(false);
@@ -79,11 +81,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         <div className="min-h-screen bg-slate-50 p-8">
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-4xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
-                        Admin Dashboard
-                    </h1>
-                    <p className="text-slate-500">Quản lý sản phẩm và đơn hàng</p>
+                <div className="mb-8 flex justify-between items-center">
+                    <div>
+                        <h1 className="text-4xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
+                            Admin Dashboard
+                        </h1>
+                        <p className="text-slate-500">Quản lý sản phẩm và đơn hàng</p>
+                    </div>
+                    {onLogout && (
+                        <button
+                            onClick={onLogout}
+                            className="flex items-center gap-2 bg-red-50 text-red-600 px-5 py-2.5 rounded-xl font-bold hover:bg-red-100 transition-all border border-red-100"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clipRule="evenodd" />
+                            </svg>
+                            <span>Đăng xuất</span>
+                        </button>
+                    )}
                 </div>
 
                 {/* Tabs */}
@@ -91,8 +106,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <button
                         onClick={() => setActiveTab('products')}
                         className={`px-6 py-3 rounded-xl font-bold transition-all ${activeTab === 'products'
-                                ? 'bg-indigo-600 text-white shadow-lg'
-                                : 'bg-white text-slate-600 hover:bg-slate-50'
+                            ? 'bg-indigo-600 text-white shadow-lg'
+                            : 'bg-white text-slate-600 hover:bg-slate-50'
                             }`}
                     >
                         📦 Sản phẩm ({products.length})
@@ -100,8 +115,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <button
                         onClick={() => setActiveTab('orders')}
                         className={`px-6 py-3 rounded-xl font-bold transition-all ${activeTab === 'orders'
-                                ? 'bg-indigo-600 text-white shadow-lg'
-                                : 'bg-white text-slate-600 hover:bg-slate-50'
+                            ? 'bg-indigo-600 text-white shadow-lg'
+                            : 'bg-white text-slate-600 hover:bg-slate-50'
                             }`}
                     >
                         📋 Đơn hàng ({orders.length})
