@@ -1,23 +1,18 @@
 
-import { GoogleGenAI } from "@google/genai";
+// Mock AI service - không cần API key
+export const askAssistant = async (prompt: string, context: string): Promise<string> => {
+  // Simulate async delay
+  await new Promise(resolve => setTimeout(resolve, 500));
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  // Simple mock responses
+  const responses = [
+    "Chào bạn! Tôi có thể giúp bạn tìm sản phẩm phù hợp. Bạn đang tìm loại sản phẩm nào?",
+    "Sản phẩm của chúng tôi đều có chất lượng cao và giá cả hợp lý. Bạn muốn xem chi tiết sản phẩm nào?",
+    "Cảm ơn bạn đã quan tâm! Tôi là trợ lý AI đơn giản. Hãy xem danh sách sản phẩm để chọn mua nhé!",
+    "Chúng tôi có nhiều sản phẩm tốt. Vui lòng xem danh sách và chọn sản phẩm bạn thích!"
+  ];
 
-export const askAssistant = async (prompt: string, context: string) => {
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: `You are a helpful sales assistant for "SGE Store". 
-      Context of current products: ${context}.
-      User query: ${prompt}`,
-      config: {
-        systemInstruction: "Trả lời ngắn gọn, lịch sự bằng tiếng Việt. Giúp khách hàng chọn sản phẩm phù hợp.",
-        temperature: 0.7,
-      }
-    });
-    return response.text;
-  } catch (error) {
-    console.error("Gemini Error:", error);
-    return "Xin lỗi, tôi gặp chút trục trặc khi kết nối. Tôi có thể giúp gì khác cho bạn?";
-  }
+  // Return random response
+  const randomIndex = Math.floor(Math.random() * responses.length);
+  return responses[randomIndex];
 };
