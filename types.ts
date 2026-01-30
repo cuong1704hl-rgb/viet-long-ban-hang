@@ -25,13 +25,16 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  phone?: string;
   role: 'admin' | 'customer';
+  createdAt: string;
 }
 
 export interface Order {
   id: string;
   userId: string;
   userName: string;
+  userEmail: string;
   items: CartItem[];
   total: number;
   status: OrderStatus;
@@ -46,4 +49,24 @@ export interface AppState {
   currentUser: User | null;
   cart: CartItem[];
   isSheetSynced: boolean;
+}
+
+// Authentication types
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+export interface RegisterData {
+  email: string;
+  password: string;
+  name: string;
+  phone?: string;
+}
+
+export interface AuthState {
+  user: User | null;
+  isAuthenticated: boolean;
+  isAdmin: boolean;
+  isLoading: boolean;
 }

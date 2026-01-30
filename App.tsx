@@ -2,8 +2,10 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { AppState, Product, Order, User, CartItem, OrderStatus } from './types';
 import { sheetService } from './services/sheetService';
+import { authService } from './services/authService';
 import Navbar from './components/Navbar';
 import AIChat from './components/AIChat';
+import { LoginModal } from './components/LoginModal';
 
 const App: React.FC = () => {
   const [state, setState] = useState<AppState>({
@@ -17,25 +19,32 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('Tất cả');
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const init = async () => {
       try {
         const products = await sheetService.getProducts();
         const orders = await sheetService.getOrders();
-        const savedUser = localStorage.getItem('sge_user');
-        
+
+        // Check for existing auth session
+        const currentUser = authService.getCurrentUser();
+        const isAdmin = authService.isAdmin();
+
         setState(prev => ({
           ...prev,
           products,
           orders,
-          currentUser: savedUser ? JSON.parse(savedUser) : null,
+          currentUser,
           isSheetSynced: true
         }));
+
+        setIsAdmin(isAdmin);
       } catch (err) {
         console.error("Initialization failed", err);
       } finally {
-        setTimeout(() => setLoading(false), 1000); // Small delay for smooth transition
+        setTimeout(() => setLoading(false), 1000);
       }
     };
     init();
@@ -48,28 +57,31 @@ const App: React.FC = () => {
 
   const filteredProducts = useMemo(() => {
     return state.products.filter(product => {
-      const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                            product.description.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.description.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCategory = activeCategory === 'Tất cả' || product.category === activeCategory;
       return matchesSearch && matchesCategory;
     });
   }, [state.products, searchTerm, activeCategory]);
 
-  const handleLogin = (role: 'admin' | 'customer') => {
-    const mockUser: User = {
-      id: Math.random().toString(36).substr(2, 9),
-      name: role === 'admin' ? 'Admin Manager' : 'Trần Anh Khoa',
-      email: role === 'admin' ? 'admin@sge.com' : 'khoa.user@gmail.com',
-      role
-    };
-    localStorage.setItem('sge_user', JSON.stringify(mockUser));
-    setState(prev => ({ ...prev, currentUser: mockUser }));
+  const handleLogin = () => {
+    setShowLoginModal(true);
+  };
+
+  const handleLoginSuccess = () => {
+    // Refresh user state
+    const currentUser = authService.getCurrentUser();
+    const isAdmin = authService.isAdmin();
+
+    setState(prev => ({ ...prev, currentUser }));
+    setIsAdmin(isAdmin);
     setCurrentPage('home');
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('sge_user');
+    authService.logout();
     setState(prev => ({ ...prev, currentUser: null }));
+    setIsAdmin(false);
     setCurrentPage('home');
   };
 
@@ -167,12 +179,12 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen">
-      <Navbar 
-        user={state.currentUser} 
-        onNavigate={setCurrentPage} 
-        cartCount={state.cart.reduce((a, b) => a + b.quantity, 0)} 
+      <Navbar
+        user={state.currentUser}
+        onNavigate={setCurrentPage}
+        cartCount={state.cart.reduce((a, b) => a + b.quantity, 0)}
       />
-      
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {currentPage === 'home' && (
           <section className="animate-fade-in-up">
@@ -181,7 +193,7 @@ const App: React.FC = () => {
                 New Generation 2024
               </div>
               <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight leading-tight mb-6">
-                Kiến tạo tương lai <br/> 
+                Kiến tạo tương lai <br />
                 <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent italic">với công nghệ đỉnh cao</span>
               </h1>
               <p className="text-lg text-slate-500 max-w-2xl mx-auto font-medium mb-10">
@@ -196,7 +208,7 @@ const App: React.FC = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                   </div>
-                  <input 
+                  <input
                     type="text"
                     placeholder="Tìm kiếm sản phẩm, thương hiệu hoặc tính năng..."
                     value={searchTerm}
@@ -204,7 +216,7 @@ const App: React.FC = () => {
                     className="w-full pl-16 pr-6 py-6 bg-white border border-slate-200 rounded-[2rem] text-lg font-bold text-slate-900 placeholder:text-slate-300 focus:ring-4 focus:ring-indigo-50 focus:border-indigo-500 outline-none transition-all shadow-xl shadow-slate-100/50"
                   />
                   {searchTerm && (
-                    <button 
+                    <button
                       onClick={() => setSearchTerm('')}
                       className="absolute inset-y-0 right-6 flex items-center text-slate-400 hover:text-slate-600"
                     >
@@ -220,11 +232,10 @@ const App: React.FC = () => {
                     <button
                       key={cat}
                       onClick={() => setActiveCategory(cat)}
-                      className={`px-6 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${
-                        activeCategory === cat 
-                        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100 scale-105' 
+                      className={`px-6 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${activeCategory === cat
+                        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100 scale-105'
                         : 'bg-white text-slate-400 border border-slate-100 hover:border-indigo-200 hover:text-indigo-500'
-                      }`}
+                        }`}
                     >
                       {cat}
                     </button>
@@ -232,19 +243,19 @@ const App: React.FC = () => {
                 </div>
               </div>
             </div>
-            
+
             {filteredProducts.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                 {filteredProducts.map((product, idx) => (
-                  <div 
-                    key={product.id} 
+                  <div
+                    key={product.id}
                     className={`product-card bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden shadow-sm animate-fade-in-up stagger-${(idx % 5) + 1}`}
                   >
                     <div className="aspect-[4/5] overflow-hidden bg-slate-50 relative group">
-                      <img 
-                        src={product.image} 
-                        alt={product.name} 
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       />
                       <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                       <div className="absolute top-4 right-4">
@@ -266,7 +277,7 @@ const App: React.FC = () => {
                       <p className="text-sm text-slate-500 line-clamp-2 mb-6 h-10 font-medium">{product.description}</p>
                       <div className="flex items-center justify-between pt-4 border-t border-slate-50">
                         <span className="text-2xl font-black text-slate-900">{(product.price).toLocaleString('vi-VN')} đ</span>
-                        <button 
+                        <button
                           onClick={() => addToCart(product)}
                           className="bg-indigo-600 text-white p-4 rounded-2xl hover:bg-slate-900 transition-all shadow-lg shadow-indigo-100 hover:scale-110 active:scale-95"
                         >
@@ -288,7 +299,7 @@ const App: React.FC = () => {
                 </div>
                 <h3 className="text-2xl font-black text-slate-900 mb-2">Không tìm thấy sản phẩm</h3>
                 <p className="text-slate-400 font-bold mb-8">Chúng tôi không tìm thấy kết quả phù hợp với "{searchTerm}"</p>
-                <button 
+                <button
                   onClick={() => { setSearchTerm(''); setActiveCategory('Tất cả'); }}
                   className="bg-indigo-600 text-white px-10 py-4 rounded-2xl font-bold hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100"
                 >
@@ -317,8 +328,8 @@ const App: React.FC = () => {
                   </svg>
                 </div>
                 <p className="text-slate-400 mb-8 font-bold text-lg">Giỏ hàng của bạn đang trống.</p>
-                <button 
-                  onClick={() => setCurrentPage('home')} 
+                <button
+                  onClick={() => setCurrentPage('home')}
                   className="bg-indigo-600 text-white px-10 py-4 rounded-2xl font-bold hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100"
                 >
                   Mua sắm ngay
@@ -362,10 +373,10 @@ const App: React.FC = () => {
                     </div>
                   ))}
                 </div>
-                
+
                 <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-2xl shadow-indigo-100/20 h-fit">
                   <h3 className="text-2xl font-black mb-8 text-slate-900">Chi tiết thanh toán</h3>
-                  
+
                   <div className="space-y-4 mb-8">
                     <div className="flex justify-between font-bold text-slate-500">
                       <span>Tạm tính</span>
@@ -380,7 +391,7 @@ const App: React.FC = () => {
                       <span className="text-indigo-600">{state.cart.reduce((a, b) => a + (b.price * b.quantity), 0).toLocaleString('vi-VN')} đ</span>
                     </div>
                   </div>
-                  
+
                   {state.currentUser ? (
                     <form onSubmit={(e) => {
                       e.preventDefault();
@@ -423,7 +434,7 @@ const App: React.FC = () => {
                 </svg>
               </button>
             </div>
-            
+
             <div className="grid grid-cols-1 gap-10">
               {state.orders.filter(o => o.userId === state.currentUser?.id).length === 0 ? (
                 <div className="text-center py-32 bg-white rounded-[3rem] border border-slate-100 text-slate-400 font-bold">
@@ -441,7 +452,7 @@ const App: React.FC = () => {
                   return (
                     <div key={order.id} className="bg-white p-8 md:p-12 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/40 relative overflow-hidden group">
                       <div className="absolute top-0 left-0 w-2 h-full bg-indigo-600 transition-all duration-500 group-hover:w-3"></div>
-                      
+
                       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
                         <div>
                           <div className="flex items-center space-x-3 mb-2">
@@ -451,11 +462,10 @@ const App: React.FC = () => {
                           <h3 className="text-2xl font-black text-slate-900">Chi tiết đơn hàng</h3>
                         </div>
                         <div className="flex flex-col items-end">
-                          <span className={`px-6 py-2 rounded-2xl text-sm font-black uppercase tracking-widest mb-2 shadow-sm ${
-                            order.status === OrderStatus.COMPLETED ? 'bg-emerald-500 text-white' :
+                          <span className={`px-6 py-2 rounded-2xl text-sm font-black uppercase tracking-widest mb-2 shadow-sm ${order.status === OrderStatus.COMPLETED ? 'bg-emerald-500 text-white' :
                             order.status === OrderStatus.CANCELLED ? 'bg-rose-500 text-white' :
-                            'bg-indigo-600 text-white'
-                          }`}>{order.status}</span>
+                              'bg-indigo-600 text-white'
+                            }`}>{order.status}</span>
                           <span className="text-2xl font-black text-indigo-600">{(order.total).toLocaleString('vi-VN')} đ</span>
                         </div>
                       </div>
@@ -466,18 +476,17 @@ const App: React.FC = () => {
                           <div className="flex justify-between relative">
                             {/* Connector Line */}
                             <div className="absolute top-1/2 left-0 w-full h-1 bg-slate-100 -translate-y-1/2 z-0"></div>
-                            <div 
+                            <div
                               className="absolute top-1/2 left-0 h-1 bg-indigo-600 -translate-y-1/2 z-0 transition-all duration-1000"
                               style={{ width: `${(progressIdx! / (steps.length - 1)) * 100}%` }}
                             ></div>
-                            
+
                             {steps.map((step, idx) => (
                               <div key={step} className="relative z-10 flex flex-col items-center">
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-500 border-4 ${
-                                  idx <= progressIdx! 
-                                  ? 'bg-indigo-600 border-white text-white shadow-lg shadow-indigo-100 scale-110' 
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-500 border-4 ${idx <= progressIdx!
+                                  ? 'bg-indigo-600 border-white text-white shadow-lg shadow-indigo-100 scale-110'
                                   : 'bg-white border-slate-100 text-slate-200'
-                                }`}>
+                                  }`}>
                                   {idx < progressIdx! ? (
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -486,9 +495,8 @@ const App: React.FC = () => {
                                     <span className="text-[10px] font-black">{idx + 1}</span>
                                   )}
                                 </div>
-                                <span className={`absolute -bottom-8 text-[10px] font-black uppercase tracking-widest whitespace-nowrap ${
-                                  idx <= progressIdx! ? 'text-indigo-600' : 'text-slate-300'
-                                }`}>
+                                <span className={`absolute -bottom-8 text-[10px] font-black uppercase tracking-widest whitespace-nowrap ${idx <= progressIdx! ? 'text-indigo-600' : 'text-slate-300'
+                                  }`}>
                                   {step}
                                 </span>
                               </div>
@@ -545,7 +553,7 @@ const App: React.FC = () => {
                           </div>
 
                           <div className="mt-10">
-                            <button 
+                            <button
                               onClick={() => buyAgain(order.items)}
                               className="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-indigo-600 transition-all flex items-center justify-center space-x-3 shadow-xl shadow-slate-200"
                             >
@@ -612,7 +620,7 @@ const App: React.FC = () => {
                           <span className="text-[10px] font-black px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 uppercase tracking-widest">{order.status}</span>
                         </td>
                         <td className="px-8 py-8">
-                          <select 
+                          <select
                             value={order.status}
                             onChange={(e) => updateOrder(order.id, e.target.value as OrderStatus)}
                             className="bg-white border-2 border-slate-100 text-xs font-bold rounded-xl px-4 py-2.5 focus:ring-4 focus:ring-indigo-50/50 focus:border-indigo-500 outline-none transition-all cursor-pointer"
@@ -638,25 +646,25 @@ const App: React.FC = () => {
               <div className="w-24 h-24 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-3xl mx-auto flex items-center justify-center text-white text-5xl font-black mb-10 shadow-2xl shadow-indigo-200 animate-float">S</div>
               <h2 className="text-4xl font-black mb-3 text-slate-900 tracking-tighter">Chào mừng</h2>
               <p className="text-slate-400 mb-12 font-bold uppercase text-[10px] tracking-[0.2em]">Chọn phân quyền truy cập</p>
-              
+
               <div className="space-y-6">
-                <button 
-                  onClick={() => handleLogin('customer')}
+                <button
+                  onClick={() => handleLogin()}
                   className="w-full bg-slate-900 text-white py-5 rounded-[2rem] font-black text-lg hover:bg-indigo-600 shadow-xl shadow-slate-100 transition-all active:scale-95 flex items-center justify-center space-x-3 group"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 group-hover:rotate-12 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
-                  <span>Khách hàng</span>
+                  <span>Đăng nhập</span>
                 </button>
-                <button 
-                  onClick={() => handleLogin('admin')}
+                <button
+                  onClick={() => handleLogin()}
                   className="w-full bg-white text-slate-900 border-2 border-slate-100 py-5 rounded-[2rem] font-black text-lg hover:border-indigo-600 hover:text-indigo-600 transition-all active:scale-95 flex items-center justify-center space-x-3"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                   </svg>
-                  <span>Quản trị viên</span>
+                  <span>Đăng ký</span>
                 </button>
               </div>
             </div>
@@ -665,7 +673,7 @@ const App: React.FC = () => {
       </main>
 
       <AIChat products={state.products} />
-      
+
       {/* Footer Decoration */}
       <footer className="max-w-7xl mx-auto px-4 py-20 border-t border-slate-100">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
@@ -687,7 +695,7 @@ const App: React.FC = () => {
           <div>
             <h4 className="font-black mb-6 uppercase text-[10px] tracking-widest text-slate-400">Social</h4>
             <div className="flex space-x-4">
-              {[1,2,3].map(i => (
+              {[1, 2, 3].map(i => (
                 <div key={i} className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center hover:bg-indigo-50 hover:text-indigo-600 transition-colors cursor-pointer">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -698,6 +706,13 @@ const App: React.FC = () => {
           </div>
         </div>
       </footer>
+
+      {/* Login Modal */}
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onSuccess={handleLoginSuccess}
+      />
     </div>
   );
 };
