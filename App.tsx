@@ -233,18 +233,17 @@ const App: React.FC = () => {
           orders={state.orders}
           onUpdateProfile={handleUpdateProfile}
         />
-      ) :
+      ) : isAdmin ? (
         {/* Admin Dashboard for admin users */ }
-      isAdmin ? (
-      <AdminDashboard
-        products={state.products}
-        orders={state.orders}
-        onAddProduct={handleAddProduct}
-        onUpdateProduct={handleUpdateProduct}
-        onDeleteProduct={handleDeleteProduct}
-        onUpdateOrderStatus={updateOrder}
-        onExportOrders={handleExportOrders}
-      />
+        < AdminDashboard
+          products={state.products}
+      orders={state.orders}
+      onAddProduct={handleAddProduct}
+      onUpdateProduct={handleUpdateProduct}
+      onDeleteProduct={handleDeleteProduct}
+      onUpdateOrderStatus={updateOrder}
+      onExportOrders={handleExportOrders}
+        />
       ) : (
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {currentPage === 'home' && (
