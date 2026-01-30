@@ -46,7 +46,8 @@ export const authService = {
 
         // For customer login - call Google Sheets API
         try {
-            const SHEETS_URL = import.meta.env.VITE_SHEETS_URL;
+            // Hardcoded URL to ensure it works immediately (quota limits prevent Vercel Env update)
+            const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyzwFBBWl-5JXSjKTcoLWtbJPPZirpQ8801T-Thmcq1C7vrrc4Kdox31bXMXbmCz379/exec';
 
             if (!SHEETS_URL) {
                 // Fallback: Mock customer for testing
@@ -63,7 +64,7 @@ export const authService = {
 
             const response = await fetch(`${SHEETS_URL}?action=loginUser`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Use text/plain to avoid CORS preflight
                 body: JSON.stringify({ email, password })
             });
 
@@ -88,7 +89,7 @@ export const authService = {
     // Register new customer
     async register(data: RegisterData): Promise<User> {
         try {
-            const SHEETS_URL = import.meta.env.VITE_SHEETS_URL;
+            const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyzwFBBWl-5JXSjKTcoLWtbJPPZirpQ8801T-Thmcq1C7vrrc4Kdox31bXMXbmCz379/exec';
 
             if (!SHEETS_URL) {
                 // Fallback: Create mock user
@@ -109,7 +110,7 @@ export const authService = {
 
             const response = await fetch(`${SHEETS_URL}`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 body: JSON.stringify({
                     action: 'registerUser',
                     email: data.email,
