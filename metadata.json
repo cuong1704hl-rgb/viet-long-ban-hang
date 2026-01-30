@@ -1,0 +1,7 @@
+{
+  "name": "SGE Store - Google Sheets Powered eCommerce",
+  "description": "A high-end, responsive eCommerce platform that uses Google Sheets as a database. Features include user authentication, product management, order tracking, and a built-in AI assistant.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
