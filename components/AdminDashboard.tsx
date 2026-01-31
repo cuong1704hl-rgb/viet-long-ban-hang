@@ -88,7 +88,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <div className="mb-8 flex justify-between items-center">
                     <div>
                         <h1 className="text-4xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
-                            Admin Dashboard
+                            Việt Long Admin
                         </h1>
                         <p className="text-slate-500">Quản lý sản phẩm và đơn hàng</p>
                     </div>

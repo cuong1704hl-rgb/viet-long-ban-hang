@@ -19,13 +19,13 @@ const Navbar: React.FC<NavbarProps> = ({ user, onNavigate, onLogout, cartCount }
             onClick={() => onNavigate('home')}
           >
             <div className="w-12 h-12 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-2xl flex items-center justify-center text-white font-extrabold text-2xl shadow-lg shadow-indigo-200 group-hover:rotate-6 transition-transform duration-300">
-              S
+              V
             </div>
             <div className="flex flex-col">
               <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent">
-                SGE Store
+                Việt Long
               </span>
-              <span className="text-[10px] uppercase tracking-widest text-indigo-500 font-bold">Premium Hub</span>
+              <span className="text-[10px] uppercase tracking-widest text-indigo-500 font-bold">Xây Dựng & Đầu Tư</span>
             </div>
           </div>
 
