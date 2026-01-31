@@ -7,13 +7,12 @@ export const excelService = {
      */
     exportOrdersToExcel(orders: Order[], filename: string = 'orders.xlsx'): void {
         // Check if XLSX library is loaded
-        if (typeof (window as any).XLSX === 'undefined') {
-            console.error('SheetJS library not loaded');
-            alert('Excel export library chưa được tải. Vui lòng refresh trang.');
+        const XLSX = (window as any).XLSX;
+        if (!XLSX) {
+            console.error('SheetJS library not loaded. Keys in window:', Object.keys(window).filter(k => k.includes('XLS')));
+            alert('Lỗi: Thư viện Excel chưa tải xong. Vui lòng đợi 3 giây và thử lại.');
             return;
         }
-
-        const XLSX = (window as any).XLSX;
 
         // Format data for Excel
         const excelData = orders.map(order => ({

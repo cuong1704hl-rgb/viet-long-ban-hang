@@ -239,7 +239,7 @@ const App: React.FC = () => {
           orders={state.orders}
           onUpdateProfile={handleUpdateProfile}
         />
-      ) : isAdmin ? (
+      ) : isAdmin && currentPage === 'admin' ? (
         <AdminDashboard
           products={state.products}
           orders={state.orders}
@@ -254,7 +254,7 @@ const App: React.FC = () => {
         />
       ) : (
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          {currentPage === 'home' && (
+          {(currentPage === 'home' || currentPage === 'products' || currentPage === 'deals') && (
             <section className="animate-fade-in-up">
               <div className="mb-16 flex flex-col items-center text-center">
                 <div className="bg-indigo-50 text-indigo-600 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6 animate-float">

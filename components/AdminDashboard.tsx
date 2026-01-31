@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { Product, Order, OrderStatus, User } from '../types';
+import { OrderDetailModal } from './OrderDetailModal';
 
 interface AdminDashboardProps {
     products: Product[];
@@ -29,6 +30,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'users'>('products');
     const [showAddProduct, setShowAddProduct] = useState(false);
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
     // New product form state
     const [formData, setFormData] = useState({
@@ -335,7 +337,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                                 {new Date(order.createdAt).toLocaleDateString('vi-VN')}
                                             </td>
                                             <td className="px-6 py-4">
-                                                <button className="text-indigo-600 hover:text-indigo-700 font-medium text-sm">
+                                                <button
+                                                    onClick={() => setSelectedOrder(order)}
+                                                    className="text-indigo-600 hover:text-indigo-700 font-medium text-sm"
+                                                >
                                                     Chi tiết
                                                 </button>
                                             </td>
@@ -401,6 +406,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     </div>
                 )}
             </div>
+
+            {/* Order Detail Modal */}
+            <OrderDetailModal
+                order={selectedOrder}
+                onClose={() => setSelectedOrder(null)}
+                onUpdateStatus={onUpdateOrderStatus}
+            />
         </div>
     );
 };

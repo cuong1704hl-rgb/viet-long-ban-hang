@@ -33,7 +33,7 @@ const Navbar: React.FC<NavbarProps> = ({ user, onNavigate, onLogout, cartCount }
             {['home', 'products', 'deals'].map((item) => (
               <button
                 key={item}
-                onClick={() => onNavigate('home')}
+                onClick={() => onNavigate(item)}
                 className="text-slate-500 hover:text-indigo-600 font-semibold text-sm transition-colors relative group py-2"
               >
                 {item === 'home' ? 'Trang chủ' : item === 'products' ? 'Sản phẩm' : 'Ưu đãi'}
