@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { AppState, Product, Order, User, CartItem, OrderStatus } from './types';
-import { sheetService } from './services/sheetService';
+import { localService } from './services/localService';
 import { authService } from './services/authService';
 import { excelService } from './services/excelService';
 import Navbar from './components/Navbar';
@@ -28,8 +28,8 @@ const App: React.FC = () => {
   useEffect(() => {
     const init = async () => {
       try {
-        const products = await sheetService.getProducts();
-        const orders = await sheetService.getOrders();
+        const products = localService.getProducts();
+        const orders = localService.getOrders();
 
         // Check for existing auth session
         const currentUser = authService.getCurrentUser();
@@ -150,15 +150,15 @@ const App: React.FC = () => {
       phone
     };
 
-    await sheetService.saveOrder(newOrder);
-    const updatedOrders = await sheetService.getOrders();
+    localService.saveOrder(newOrder);
+    const updatedOrders = localService.getOrders();
     setState(prev => ({ ...prev, cart: [], orders: updatedOrders }));
     setCurrentPage('profile');
   };
 
   const updateOrder = async (id: string, status: OrderStatus) => {
-    await sheetService.updateOrderStatus(id, status);
-    const updatedOrders = await sheetService.getOrders();
+    localService.updateOrderStatus(id, status);
+    const updatedOrders = localService.getOrders();
     setState(prev => ({ ...prev, orders: updatedOrders }));
   };
 
@@ -174,24 +174,18 @@ const App: React.FC = () => {
       id: 'P-' + Date.now(),
       ...productData
     };
-    setState(prev => ({ ...prev, products: [...prev.products, newProduct] }));
-    // TODO: Call sheetService.addProduct when backend is ready
+    const updatedProducts = localService.saveProduct(newProduct);
+    setState(prev => ({ ...prev, products: updatedProducts }));
   };
 
   const handleUpdateProduct = async (id: string, updates: Partial<Product>) => {
-    setState(prev => ({
-      ...prev,
-      products: prev.products.map(p => p.id === id ? { ...p, ...updates } : p)
-    }));
-    // TODO: Call sheetService.updateProduct when backend is ready
+    const updatedProducts = localService.updateProduct(id, updates);
+    setState(prev => ({ ...prev, products: updatedProducts }));
   };
 
   const handleDeleteProduct = async (id: string) => {
-    setState(prev => ({
-      ...prev,
-      products: prev.products.filter(p => p.id !== id)
-    }));
-    // TODO: Call sheetService.deleteProduct when backend is ready
+    const updatedProducts = localService.deleteProduct(id);
+    setState(prev => ({ ...prev, products: updatedProducts }));
   };
 
   const handleExportOrders = () => {
