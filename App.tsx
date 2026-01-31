@@ -90,6 +90,12 @@ const App: React.FC = () => {
       orders: freshOrders,
       users: freshUsers
     }));
+
+    if (isAdmin) {
+      // Debug alert to help user verify data
+      alert(`Chào Admin! Đã tải ${freshOrders.length} đơn hàng từ hệ thống.`);
+    }
+
     setIsAdmin(isAdmin);
     setCurrentPage('home');
   };
@@ -164,6 +170,7 @@ const App: React.FC = () => {
     };
 
     localService.saveOrder(newOrder);
+    alert(`Đơn hàng ${newOrder.id} đã được gửi thành công!`);
     const updatedOrders = localService.getOrders();
     setState(prev => ({ ...prev, cart: [], orders: updatedOrders }));
     setCurrentPage('profile');
