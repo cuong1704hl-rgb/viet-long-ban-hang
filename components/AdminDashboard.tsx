@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { Product, Order, OrderStatus } from '../types';
+import type { Product, Order, OrderStatus, User } from '../types';
 
 interface AdminDashboardProps {
     products: Product[];
@@ -10,6 +10,8 @@ interface AdminDashboardProps {
     onUpdateOrderStatus: (orderId: string, status: OrderStatus) => void;
     onExportOrders: () => void;
     onLogout?: () => void;
+    users?: User[];
+    onDeleteUser?: (id: string) => void;
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
@@ -20,9 +22,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     onDeleteProduct,
     onUpdateOrderStatus,
     onExportOrders,
-    onLogout
+    onLogout,
+    users = [],
+    onDeleteUser
 }) => {
-    const [activeTab, setActiveTab] = useState<'products' | 'orders'>('products');
+    const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'users'>('products');
     const [showAddProduct, setShowAddProduct] = useState(false);
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
@@ -120,6 +124,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             }`}
                     >
                         📋 Đơn hàng ({orders.length})
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('users')}
+                        className={`px-6 py-3 rounded-xl font-bold transition-all ${activeTab === 'users'
+                            ? 'bg-indigo-600 text-white shadow-lg'
+                            : 'bg-white text-slate-600 hover:bg-slate-50'
+                            }`}
+                    >
+                        👥 Thành viên ({users.length})
                     </button>
                 </div>
 
@@ -325,6 +338,60 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                                 <button className="text-indigo-600 hover:text-indigo-700 font-medium text-sm">
                                                     Chi tiết
                                                 </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
+
+                {/* Users Tab */}
+                {activeTab === 'users' && (
+                    <div className="space-y-6">
+                        <div className="flex justify-between items-center">
+                            <h2 className="text-2xl font-bold text-slate-800">Quản lý thành viên</h2>
+                        </div>
+
+                        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                            <table className="w-full">
+                                <thead className="bg-slate-50 border-b border-slate-200">
+                                    <tr>
+                                        <th className="px-6 py-4 text-left text-sm font-bold text-slate-700">Tên</th>
+                                        <th className="px-6 py-4 text-left text-sm font-bold text-slate-700">Email</th>
+                                        <th className="px-6 py-4 text-left text-sm font-bold text-slate-700">Vai trò</th>
+                                        <th className="px-6 py-4 text-left text-sm font-bold text-slate-700">Ngày tham gia</th>
+                                        <th className="px-6 py-4 text-left text-sm font-bold text-slate-700">Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {users.map((user) => (
+                                        <tr key={user.id} className="border-b border-slate-100 hover:bg-slate-50">
+                                            <td className="px-6 py-4 font-medium">{user.name}</td>
+                                            <td className="px-6 py-4 text-sm text-slate-500">{user.email}</td>
+                                            <td className="px-6 py-4">
+                                                <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${user.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'
+                                                    }`}>
+                                                    {user.role}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 text-sm text-slate-500">
+                                                {new Date(user.createdAt).toLocaleDateString('vi-VN')}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                {user.role !== 'admin' && (
+                                                    <button
+                                                        onClick={() => {
+                                                            if (confirm(`Xóa thành viên ${user.name}?`) && onDeleteUser) {
+                                                                onDeleteUser(user.id);
+                                                            }
+                                                        }}
+                                                        className="text-red-500 hover:text-red-700 font-bold text-sm"
+                                                    >
+                                                        Xóa
+                                                    </button>
+                                                )}
                                             </td>
                                         </tr>
                                     ))}

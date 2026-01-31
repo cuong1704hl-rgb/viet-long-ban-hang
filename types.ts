@@ -30,6 +30,10 @@ export interface User {
   createdAt: string;
 }
 
+export interface UserWithPassword extends User {
+  password?: string; // Hashed password
+}
+
 export interface Order {
   id: string;
   userId: string;
@@ -49,6 +53,7 @@ export interface AppState {
   currentUser: User | null;
   cart: CartItem[];
   isSheetSynced: boolean;
+  users?: User[] | any[]; // Allow any for flexibility or strictly User[]
 }
 
 // Authentication types

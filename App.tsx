@@ -17,6 +17,7 @@ const App: React.FC = () => {
     currentUser: null,
     cart: [],
     isSheetSynced: false,
+    users: [], // New state to hold list of users for admin
   });
   const [currentPage, setCurrentPage] = useState('home');
   const [loading, setLoading] = useState(true);
@@ -40,7 +41,8 @@ const App: React.FC = () => {
           products,
           orders,
           currentUser,
-          isSheetSynced: true
+          isSheetSynced: true,
+          users: isAdmin ? localService.getUsers() : [] // Fetch users if admin
         }));
 
         setIsAdmin(isAdmin);
@@ -76,7 +78,11 @@ const App: React.FC = () => {
     const currentUser = authService.getCurrentUser();
     const isAdmin = authService.isAdmin();
 
-    setState(prev => ({ ...prev, currentUser }));
+    setState(prev => ({
+      ...prev,
+      currentUser,
+      users: isAdmin ? localService.getUsers() : []
+    }));
     setIsAdmin(isAdmin);
     setCurrentPage('home');
   };
@@ -199,6 +205,11 @@ const App: React.FC = () => {
     // TODO: Call API to update user in Google Sheets
   };
 
+  const handleDeleteUser = (id: string) => {
+    const updatedUsers = localService.deleteUser(id);
+    setState(prev => ({ ...prev, users: updatedUsers }));
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white">
@@ -238,6 +249,8 @@ const App: React.FC = () => {
           onUpdateOrderStatus={updateOrder}
           onExportOrders={handleExportOrders}
           onLogout={handleLogout}
+          users={state.users}
+          onDeleteUser={handleDeleteUser}
         />
       ) : (
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

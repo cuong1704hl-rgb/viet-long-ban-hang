@@ -1,17 +1,7 @@
-import type { User, LoginCredentials, RegisterData } from '../types';
+import type { User, LoginCredentials, RegisterData, UserWithPassword } from '../types';
+import { localService } from './localService';
 
-// Fixed admin credentials
-const ADMIN_CREDENTIALS = {
-    email: 'admin@vietlong.com',
-    password: 'admin123', // In production, this should be hashed
-    user: {
-        id: 'admin-001',
-        email: 'admin@vietlong.com',
-        name: 'Admin Việt Long',
-        role: 'admin' as const,
-        createdAt: new Date().toISOString()
-    }
-};
+
 
 // Session storage keys
 const AUTH_STORAGE_KEY = 'vietlong_auth_user';
@@ -38,103 +28,61 @@ export const authService = {
     async login(credentials: LoginCredentials): Promise<User> {
         const { email, password } = credentials;
 
-        // Check if admin login
-        if (email === ADMIN_CREDENTIALS.email && password === ADMIN_CREDENTIALS.password) {
-            this.setSession(ADMIN_CREDENTIALS.user);
-            return ADMIN_CREDENTIALS.user;
-        }
-
-        // For customer login - call Google Sheets API
         try {
-            // Hardcoded URL to ensure it works immediately (quota limits prevent Vercel Env update)
-            const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyzwFBBWl-5JXSjKTcoLWtbJPPZirpQ8801T-Thmcq1C7vrrc4Kdox31bXMXbmCz379/exec';
+            // Get users from local storage
+            const users = localService.getUsers();
 
-            if (!SHEETS_URL) {
-                // Fallback: Mock customer for testing
-                const mockUser: User = {
-                    id: 'customer-001',
-                    email,
-                    name: 'Mock Customer',
-                    role: 'customer',
-                    createdAt: new Date().toISOString()
-                };
-                this.setSession(mockUser);
-                return mockUser;
+            // Find user by email
+            const user = users.find(u => u.email === email);
+            if (!user) {
+                throw new Error('Email không tồn tại');
             }
 
-            const response = await fetch(`${SHEETS_URL}?action=loginUser`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Use text/plain to avoid CORS preflight
-                body: JSON.stringify({ email, password })
-            });
-
-            if (!response.ok) {
-                throw new Error('Invalid credentials');
+            // Verify password
+            const hashedPassword = await hashPassword(password);
+            // Check against stored password or specific check for default admin
+            if (user.password !== hashedPassword) {
+                throw new Error('Mật khẩu không đúng');
             }
 
-            const data = await response.json();
-            if (!data.success || !data.user) {
-                throw new Error(data.message || 'Login failed');
-            }
+            // Remove password before returning/storing in session
+            const { password: _, ...safeUser } = user;
 
-            const user = data.user as User;
-            this.setSession(user);
-            return user;
-        } catch (error) {
+            this.setSession(safeUser as User);
+            return safeUser as User;
+        } catch (error: any) {
             console.error('Login error:', error);
-            throw new Error('Email hoặc mật khẩu không đúng');
+            throw new Error(error.message || 'Đăng nhập thất bại');
         }
     },
 
     // Register new customer
     async register(data: RegisterData): Promise<User> {
         try {
-            const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyzwFBBWl-5JXSjKTcoLWtbJPPZirpQ8801T-Thmcq1C7vrrc4Kdox31bXMXbmCz379/exec';
-
-            if (!SHEETS_URL) {
-                // Fallback: Create mock user
-                const mockUser: User = {
-                    id: `customer-${Date.now()}`,
-                    email: data.email,
-                    name: data.name,
-                    phone: data.phone,
-                    role: 'customer',
-                    createdAt: new Date().toISOString()
-                };
-                this.setSession(mockUser);
-                return mockUser;
-            }
-
-            // Hash password before sending
+            // Hash password
             const passwordHash = await hashPassword(data.password);
 
-            const response = await fetch(`${SHEETS_URL}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({
-                    action: 'registerUser',
-                    email: data.email,
-                    password: passwordHash,
-                    name: data.name,
-                    phone: data.phone
-                })
-            });
+            const newUser: UserWithPassword = {
+                id: `u-${Date.now()}`,
+                email: data.email,
+                name: data.name,
+                phone: data.phone,
+                role: 'customer',
+                createdAt: new Date().toISOString(),
+                password: passwordHash
+            };
 
-            if (!response.ok) {
-                throw new Error('Registration failed');
-            }
+            // Save to local service
+            localService.saveUser(newUser);
 
-            const result = await response.json();
-            if (!result.success || !result.user) {
-                throw new Error(result.message || 'Registration failed');
-            }
+            // Remove password for session
+            const { password: _, ...safeUser } = newUser;
+            this.setSession(safeUser as User);
 
-            const user = result.user as User;
-            this.setSession(user);
-            return user;
-        } catch (error) {
+            return safeUser as User;
+        } catch (error: any) {
             console.error('Registration error:', error);
-            throw new Error('Đăng ký thất bại. Email có thể đã được sử dụng.');
+            throw new Error(error.message || 'Đăng ký thất bại');
         }
     },
 

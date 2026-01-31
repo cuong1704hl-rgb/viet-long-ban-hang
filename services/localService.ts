@@ -1,5 +1,5 @@
 
-import { Product, Order, OrderStatus } from '../types';
+import { Product, Order, OrderStatus, User, UserWithPassword } from '../types';
 
 /**
  * VIỆT LONG LOCAL SERVICE
@@ -15,7 +15,8 @@ import { Product, Order, OrderStatus } from '../types';
 
 const STORAGE_KEYS = {
     PRODUCTS: 'vietlong_products_v1',
-    ORDERS: 'vietlong_orders_v1'
+    ORDERS: 'vietlong_orders_v1',
+    USERS: 'vietlong_users_v1'
 };
 
 // Dữ liệu mẫu ban đầu nếu chưa có gì
@@ -117,6 +118,66 @@ export const localService = {
             return newOrders;
         } catch (error) {
             console.error('Error updating order status:', error);
+            return [];
+        }
+    },
+
+    // --- USERS ---
+
+    getUsers: (): UserWithPassword[] => {
+        try {
+            const stored = localStorage.getItem(STORAGE_KEYS.USERS);
+            if (stored) {
+                return JSON.parse(stored);
+            }
+            // Initialize default admin if empty
+            // Password: admin123 (HAsh: 240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9)
+            // We'll store it directly, authService will handle hashing comparison check
+            const defaultAdmin: UserWithPassword = {
+                id: 'admin-001',
+                email: 'admin@vietlong.com',
+                name: 'Admin Việt Long',
+                role: 'admin',
+                createdAt: new Date().toISOString(),
+                password: '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9'
+            };
+            const initialUsers = [defaultAdmin];
+            localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(initialUsers));
+            return initialUsers;
+        } catch (error) {
+            console.error('Error reading users from local storage:', error);
+            return [];
+        }
+    },
+
+    saveUser: (user: UserWithPassword): UserWithPassword[] => {
+        try {
+            const users = localService.getUsers();
+            // Check email uniqueness
+            if (users.some(u => u.email === user.email)) {
+                throw new Error('Email already exists');
+            }
+            const newUsers = [...users, user];
+            localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(newUsers));
+            return newUsers;
+        } catch (error) {
+            console.error('Error saving user:', error);
+            throw error;
+        }
+    },
+
+    deleteUser: (id: string): UserWithPassword[] => {
+        try {
+            const users = localService.getUsers();
+            // Prevent deleting the main admin
+            if (id === 'admin-001') {
+                throw new Error('Cannot delete main admin');
+            }
+            const newUsers = users.filter(u => u.id !== id);
+            localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(newUsers));
+            return newUsers;
+        } catch (error) {
+            console.error('Error deleting user:', error);
             return [];
         }
     }
