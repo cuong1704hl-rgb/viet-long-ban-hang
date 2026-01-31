@@ -78,10 +78,17 @@ const App: React.FC = () => {
     const currentUser = authService.getCurrentUser();
     const isAdmin = authService.isAdmin();
 
+    // Reload all data from local storage to ensure consistency
+    const freshProducts = localService.getProducts();
+    const freshOrders = localService.getOrders();
+    const freshUsers = isAdmin ? localService.getUsers() : [];
+
     setState(prev => ({
       ...prev,
       currentUser,
-      users: isAdmin ? localService.getUsers() : []
+      products: freshProducts,
+      orders: freshOrders,
+      users: freshUsers
     }));
     setIsAdmin(isAdmin);
     setCurrentPage('home');
