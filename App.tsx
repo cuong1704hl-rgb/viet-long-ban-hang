@@ -30,14 +30,10 @@ const App: React.FC = () => {
   useEffect(() => {
     const init = async () => {
       try {
-        const products = await firebaseService.getProducts();
+        // Initialize default data if empty (Seed)
+        await firebaseService.initializeData();
 
-        // Seed default products if empty (first time run)
-        if (products.length === 0) {
-          // Re-use initial products from previous localService definition or defining them here
-          // For brevity, skipping auto-seed or maybe I should trigger it?
-          // Let's assume empty is fine, or I can copy the seed list.
-        }
+        const products = await firebaseService.getProducts();
 
         const orders = await firebaseService.getOrders();
 

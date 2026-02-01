@@ -143,6 +143,39 @@ export const firebaseService = {
         }
     },
 
+    // Seed Function
+    async initializeData() {
+        try {
+            // Check products
+            const productsSnapshot = await getDocs(collection(db, COLLECTIONS.PRODUCTS));
+            if (productsSnapshot.empty) {
+                console.log("Seeding products...");
+                for (const p of INITIAL_PRODUCTS) {
+                    // Using setDoc to preserve IDs if important, or addDoc
+                    await setDoc(doc(db, COLLECTIONS.PRODUCTS, p.id), p);
+                }
+            }
+
+            // Check admin
+            const adminRef = doc(db, COLLECTIONS.USERS, DEFAULT_ADMIN.id);
+            const adminSnap = await getDocs(query(collection(db, COLLECTIONS.USERS), where("id", "==", DEFAULT_ADMIN.id)));
+
+            // Easier check: just try to get the specific doc if ID is known, or query
+            // We used setDoc with ID for users, so valid check:
+            // But actually getCurrentUser in app might fail if not logged in.
+            // We just ensure the account exists in DB.
+            // Let's use setDoc with merge to ensure it exists without overwriting if changed? 
+            // Or just check if empty.
+            const usersSnapshot = await getDocs(collection(db, COLLECTIONS.USERS));
+            if (usersSnapshot.empty) {
+                console.log("Seeding admin...");
+                await setDoc(adminRef, DEFAULT_ADMIN);
+            }
+        } catch (e) {
+            console.error("Initialization error:", e);
+        }
+    },
+
     // Seed Function (Run once manually if needed)
     async seedProducts(products: Product[]) {
         const existing = await this.getProducts();
