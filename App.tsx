@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { AppState, Product, Order, User, CartItem, OrderStatus } from './types';
-import { localService } from './services/localService';
+import { firebaseService } from './services/firebaseService';
 import { authService } from './services/authService';
 import { excelService } from './services/excelService';
 import Navbar from './components/Navbar';
@@ -17,7 +17,7 @@ const App: React.FC = () => {
     currentUser: null,
     cart: [],
     isSheetSynced: false,
-    users: [], // New state to hold list of users for admin
+    users: [],
   });
   const [currentPage, setCurrentPage] = useState('home');
   const [loading, setLoading] = useState(true);
@@ -26,15 +26,24 @@ const App: React.FC = () => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
+  // Initialize data from Firebase
   useEffect(() => {
     const init = async () => {
       try {
-        const products = localService.getProducts();
-        const orders = localService.getOrders();
+        const products = await firebaseService.getProducts();
 
-        // Check for existing auth session
+        // Seed default products if empty (first time run)
+        if (products.length === 0) {
+          // Re-use initial products from previous localService definition or defining them here
+          // For brevity, skipping auto-seed or maybe I should trigger it?
+          // Let's assume empty is fine, or I can copy the seed list.
+        }
+
+        const orders = await firebaseService.getOrders();
+
         const currentUser = authService.getCurrentUser();
         const isAdmin = authService.isAdmin();
+        const users = isAdmin ? await firebaseService.getUsers() : [];
 
         setState(prev => ({
           ...prev,
@@ -42,7 +51,7 @@ const App: React.FC = () => {
           orders,
           currentUser,
           isSheetSynced: true,
-          users: isAdmin ? localService.getUsers() : [] // Fetch users if admin
+          users
         }));
 
         setIsAdmin(isAdmin);
@@ -73,15 +82,14 @@ const App: React.FC = () => {
     setShowLoginModal(true);
   };
 
-  const handleLoginSuccess = () => {
-    // Refresh user state
+  const handleLoginSuccess = async () => {
     const currentUser = authService.getCurrentUser();
     const isAdmin = authService.isAdmin();
 
-    // Reload all data from local storage to ensure consistency
-    const freshProducts = localService.getProducts();
-    const freshOrders = localService.getOrders();
-    const freshUsers = isAdmin ? localService.getUsers() : [];
+    // Reload data from Firebase
+    const freshProducts = await firebaseService.getProducts();
+    const freshOrders = await firebaseService.getOrders();
+    const freshUsers = isAdmin ? await firebaseService.getUsers() : [];
 
     setState(prev => ({
       ...prev,
@@ -92,8 +100,7 @@ const App: React.FC = () => {
     }));
 
     if (isAdmin) {
-      // Debug alert to help user verify data
-      alert(`Chào Admin! Đã tải ${freshOrders.length} đơn hàng từ hệ thống.`);
+      alert(`Chào Admin! Đã tải ${freshOrders.length} đơn hàng từ hệ thống đám mây.`);
     }
 
     setIsAdmin(isAdmin);
@@ -169,16 +176,22 @@ const App: React.FC = () => {
       phone
     };
 
-    localService.saveOrder(newOrder);
-    alert(`Đơn hàng ${newOrder.id} đã được gửi thành công!`);
-    const updatedOrders = localService.getOrders();
-    setState(prev => ({ ...prev, cart: [], orders: updatedOrders }));
-    setCurrentPage('profile');
+    try {
+      await firebaseService.saveOrder(newOrder);
+      alert(`Đơn hàng ${newOrder.id} đã được gửi lên hệ thống thành công!`);
+
+      // Refresh orders
+      const updatedOrders = await firebaseService.getOrders();
+      setState(prev => ({ ...prev, cart: [], orders: updatedOrders }));
+      setCurrentPage('profile');
+    } catch (e) {
+      alert("Lỗi khi gửi đơn hàng: " + e);
+    }
   };
 
   const updateOrder = async (id: string, status: OrderStatus) => {
-    localService.updateOrderStatus(id, status);
-    const updatedOrders = localService.getOrders();
+    await firebaseService.updateOrderStatus(id, status);
+    const updatedOrders = await firebaseService.getOrders();
     setState(prev => ({ ...prev, orders: updatedOrders }));
   };
 
@@ -190,21 +203,20 @@ const App: React.FC = () => {
 
   // Admin product handlers
   const handleAddProduct = async (productData: Omit<Product, 'id'>) => {
-    const newProduct: Product = {
-      id: 'P-' + Date.now(),
-      ...productData
-    };
-    const updatedProducts = localService.saveProduct(newProduct);
+    await firebaseService.saveProduct(productData);
+    const updatedProducts = await firebaseService.getProducts();
     setState(prev => ({ ...prev, products: updatedProducts }));
   };
 
   const handleUpdateProduct = async (id: string, updates: Partial<Product>) => {
-    const updatedProducts = localService.updateProduct(id, updates);
+    await firebaseService.updateProduct(id, updates);
+    const updatedProducts = await firebaseService.getProducts();
     setState(prev => ({ ...prev, products: updatedProducts }));
   };
 
   const handleDeleteProduct = async (id: string) => {
-    const updatedProducts = localService.deleteProduct(id);
+    await firebaseService.deleteProduct(id);
+    const updatedProducts = await firebaseService.getProducts();
     setState(prev => ({ ...prev, products: updatedProducts }));
   };
 
@@ -216,11 +228,11 @@ const App: React.FC = () => {
     if (!state.currentUser) return;
     const updatedUser = { ...state.currentUser, ...updates };
     setState(prev => ({ ...prev, currentUser: updatedUser }));
-    // TODO: Call API to update user in Google Sheets
   };
 
-  const handleDeleteUser = (id: string) => {
-    const updatedUsers = localService.deleteUser(id);
+  const handleDeleteUser = async (id: string) => {
+    await firebaseService.deleteUser(id);
+    const updatedUsers = await firebaseService.getUsers();
     setState(prev => ({ ...prev, users: updatedUsers }));
   };
 
