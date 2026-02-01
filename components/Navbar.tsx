@@ -18,14 +18,16 @@ const Navbar: React.FC<NavbarProps> = ({ user, onNavigate, onLogout, cartCount }
             className="flex items-center cursor-pointer group space-x-3"
             onClick={() => onNavigate('home')}
           >
-            <div className="w-12 h-12 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-2xl flex items-center justify-center text-white font-extrabold text-2xl shadow-lg shadow-indigo-200 group-hover:rotate-6 transition-transform duration-300">
-              V
+            <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center p-1 shadow-lg shadow-indigo-200 group-hover:rotate-6 transition-transform duration-300 overflow-hidden">
+              <img src="/logo_vietlong.png" alt="Viet Long Logo" className="w-full h-full object-contain" />
             </div>
             <div className="flex flex-col">
-              <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent">
-                Việt Long
+              <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent uppercase">
+                CÔNG TY VIỆT LONG
               </span>
-              <span className="text-[10px] uppercase tracking-widest text-indigo-500 font-bold">Xây Dựng & Đầu Tư</span>
+              <span className="text-[10px] uppercase tracking-widest text-indigo-500 font-bold max-w-[200px] leading-tight">
+                Phiên bản phòng kế hoạch kỹ thuật thử nghiệm
+              </span>
             </div>
           </div>
 

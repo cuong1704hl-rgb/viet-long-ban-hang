@@ -13,6 +13,7 @@ interface AdminDashboardProps {
     onLogout?: () => void;
     users?: User[];
     onDeleteUser?: (id: string) => void;
+    onDeleteOrder?: (id: string) => void;
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
@@ -310,6 +311,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                     </tr>
                                 </thead>
                                 <tbody>
+// Interface update needs to happen at top of file, but tool restricts single block.
+                                    // I will split this into 2 edits if needed, but the file view showed interface at top?
+                                    // Wait, I only viewed lines 300-408. I need to see the interface definition to update it comfortably or use multi_replace.
+                                    // I will use replace_file_content for the Button first, assuming I can update the interface separately or find it.
+                                    // Actually, let's use multi_replace to do both safely.
+
+                                    // ...Switching to multi_replace...
+                                    // Oops, I am in replace_file_content. I'll just change the table row first, then do another call for the interface.
+
                                     {orders.map((order) => (
                                         <tr key={order.id} className="border-b border-slate-100 hover:bg-slate-50">
                                             <td className="px-6 py-4 font-mono text-sm">{order.id.slice(0, 8)}</td>
@@ -336,13 +346,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                             <td className="px-6 py-4 text-sm text-slate-500">
                                                 {new Date(order.createdAt).toLocaleDateString('vi-VN')}
                                             </td>
-                                            <td className="px-6 py-4">
+                                            <td className="px-6 py-4 flex items-center space-x-2">
                                                 <button
                                                     onClick={() => setSelectedOrder(order)}
                                                     className="text-indigo-600 hover:text-indigo-700 font-medium text-sm"
                                                 >
                                                     Chi tiết
                                                 </button>
+                                                {onDeleteOrder && (
+                                                    <button
+                                                        onClick={() => {
+                                                            if (confirm('Bạn có chắc chắn muốn xóa đơn hàng này?')) {
+                                                                onDeleteOrder(order.id);
+                                                            }
+                                                        }}
+                                                        className="text-red-500 hover:text-red-700 font-medium text-sm"
+                                                    >
+                                                        Xóa
+                                                    </button>
+                                                )}
                                             </td>
                                         </tr>
                                     ))}

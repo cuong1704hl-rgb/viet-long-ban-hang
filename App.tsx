@@ -232,6 +232,12 @@ const App: React.FC = () => {
     setState(prev => ({ ...prev, users: updatedUsers }));
   };
 
+  const handleDeleteOrder = async (id: string) => {
+    await firebaseService.deleteOrder(id);
+    const updatedOrders = await firebaseService.getOrders();
+    setState(prev => ({ ...prev, orders: updatedOrders }));
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white">
@@ -239,8 +245,8 @@ const App: React.FC = () => {
           <div className="w-24 h-24 border-4 border-slate-100 rounded-full"></div>
           <div className="w-24 h-24 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin absolute inset-0"></div>
         </div>
-        <p className="mt-8 text-slate-900 font-extrabold text-2xl tracking-tighter animate-pulse">SGE STORE</p>
-        <p className="mt-2 text-slate-400 font-medium text-sm">Syncing with Google Sheets Cloud...</p>
+        <p className="mt-8 text-slate-900 font-extrabold text-2xl tracking-tighter animate-pulse">VIỆT LONG STORE</p>
+        <p className="mt-2 text-slate-400 font-medium text-sm">Đang đồng bộ dữ liệu đám mây...</p>
       </div>
     );
   }
@@ -273,6 +279,7 @@ const App: React.FC = () => {
           onLogout={handleLogout}
           users={state.users}
           onDeleteUser={handleDeleteUser}
+          onDeleteOrder={handleDeleteOrder}
         />
       ) : (
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

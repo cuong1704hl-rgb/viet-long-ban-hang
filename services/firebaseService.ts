@@ -101,6 +101,15 @@ export const firebaseService = {
         }
     },
 
+    async deleteOrder(orderId: string): Promise<void> {
+        try {
+            await deleteDoc(doc(db, COLLECTIONS.ORDERS, orderId));
+        } catch (error) {
+            console.error("Error deleting order:", error);
+            throw error;
+        }
+    },
+
     /**
      * USERS
      */

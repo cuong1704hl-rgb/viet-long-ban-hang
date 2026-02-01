@@ -1,27 +1,7 @@
 import type { User, LoginCredentials, RegisterData, UserWithPassword } from '../types';
-import { localService } from './localService';
+import { firebaseService } from './firebaseService';
 
-
-
-// Session storage keys
-const AUTH_STORAGE_KEY = 'vietlong_auth_user';
-const SESSION_EXPIRY_KEY = 'vietlong_auth_expiry';
-const SESSION_DURATION = 24 * 60 * 60 * 1000; // 24 hours
-
-// Simple password hashing (for demo - in production use proper crypto)
-async function hashPassword(password: string): Promise<string> {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-// Verify password against hash
-async function verifyPassword(password: string, hash: string): Promise<boolean> {
-    const passwordHash = await hashPassword(password);
-    return passwordHash === hash;
-}
+// ... (existing imports)
 
 export const authService = {
     // Login
@@ -29,8 +9,8 @@ export const authService = {
         const { email, password } = credentials;
 
         try {
-            // Get users from local storage
-            const users = localService.getUsers();
+            // Get users from Firebase
+            const users = await firebaseService.getUsers();
 
             // Find user by email
             const user = users.find(u => u.email === email);
@@ -40,7 +20,8 @@ export const authService = {
 
             // Verify password
             const hashedPassword = await hashPassword(password);
-            // Check against stored password or specific check for default admin
+
+            // Check against stored password
             if (user.password !== hashedPassword) {
                 throw new Error('Mật khẩu không đúng');
             }
@@ -72,8 +53,8 @@ export const authService = {
                 password: passwordHash
             };
 
-            // Save to local service
-            localService.saveUser(newUser);
+            // Save to Firebase
+            await firebaseService.saveUser(newUser);
 
             // Remove password for session
             const { password: _, ...safeUser } = newUser;
