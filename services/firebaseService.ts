@@ -20,6 +20,27 @@ const COLLECTIONS = {
     USERS: 'users'
 };
 
+// Initial Data
+const INITIAL_PRODUCTS: Product[] = [
+    { id: '1', name: 'iPhone 15 Pro Max', price: 29900000, description: 'Thiết kế Titan, chip A17 Pro siêu mạnh mẽ.', image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&q=80&w=800', category: 'Điện thoại', stock: 10 },
+    { id: '2', name: 'MacBook Pro M3', price: 39900000, description: 'Hiệu năng đỉnh cao, màn hình Liquid Retina XDR.', image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca4?auto=format&fit=crop&q=80&w=800', category: 'Laptop', stock: 5 },
+    { id: '3', name: 'AirPods Pro 2', price: 5900000, description: 'Chống ồn chủ động gấp 2 lần.', image: 'https://images.unsplash.com/photo-1628202926206-c63a34b1618f?auto=format&fit=crop&q=80&w=800', category: 'Phụ kiện', stock: 20 },
+    { id: '4', name: 'Apple Watch Series 9', price: 9900000, description: 'Cảm biến sức khỏe tiên tiến nhất.', image: 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&q=80&w=800', category: 'Phụ kiện', stock: 15 },
+    { id: '5', name: 'iPad Air M2', price: 16900000, description: 'Mỏng nhẹ, mạnh mẽ với chip M2.', image: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?auto=format&fit=crop&q=80&w=800', category: 'Máy tính bảng', stock: 8 },
+    { id: '6', name: 'Samsung Galaxy S24 Ultra', price: 27900000, description: 'Bút S-Pen tích hợp, camera 200MP.', image: 'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?auto=format&fit=crop&q=80&w=800', category: 'Điện thoại', stock: 12 },
+    { id: '7', name: 'Dell XPS 15', price: 35900000, description: 'Laptop cao cấp cho dân chuyên nghiệp.', image: 'https://images.unsplash.com/photo-1593642632823-8f78536788c6?auto=format&fit=crop&q=80&w=800', category: 'Laptop', stock: 7 },
+    { id: '8', name: 'Sony WH-1000XM5', price: 7900000, description: 'Tai nghe chống ồn hàng đầu thế giới.', image: 'https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?auto=format&fit=crop&q=80&w=800', category: 'Phụ kiện', stock: 25 }
+];
+
+const DEFAULT_ADMIN: UserWithPassword = {
+    id: 'admin-001',
+    email: 'admin@vietlong.com',
+    name: 'Admin Việt Long',
+    role: 'admin',
+    createdAt: new Date().toISOString(),
+    password: '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9'
+};
+
 export const firebaseService = {
     /**
      * PRODUCTS
