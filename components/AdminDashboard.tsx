@@ -26,7 +26,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     onExportOrders,
     onLogout,
     users = [],
-    onDeleteUser
+    onDeleteUser,
+    onDeleteOrder
 }) => {
     const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'users'>('products');
     const [showAddProduct, setShowAddProduct] = useState(false);
