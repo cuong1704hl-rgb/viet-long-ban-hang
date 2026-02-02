@@ -126,7 +126,51 @@
 </head>
 
 <body class="bg-slate-50 text-slate-900 selection:bg-indigo-100 selection:text-indigo-900 overflow-x-hidden">
-  <div id="root"></div>
+  <div id="root">
+    <div style="font-family: sans-serif; text-align: center; padding: 50px; color: #333;">
+      <h2 style="color: #6366f1; margin-bottom: 20px;">CÔNG TY VIỆT LONG</h2>
+      <div
+        style="width: 40px; height: 40px; border: 4px solid #e2e8f0; border-top-color: #6366f1; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;">
+      </div>
+      <p style="margin-top: 20px;">Đang tải hệ thống...</p>
+      <small style="color: #64748b;">(Nếu nội dung này hiển thị quá 10 giây, vui lòng kiểm tra kết nối mạng)</small>
+    </div>
+  </div>
+
+  <style>
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+
+  <!-- GLOBAL ERROR TRAP -->
+  <script>
+    window.onerror = function (message, source, lineno, colno, error) {
+      var root = document.getElementById('root');
+      root.innerHTML = '<div style="padding: 20px; color: red; background: #fff0f0; border: 1px solid red; margin: 20px; font-family: monospace;">' +
+        '<h3>CRITICAL SYSTEM ERROR</h3>' +
+        '<p><strong>Message:</strong> ' + message + '</p>' +
+        '<p><strong>Source:</strong> ' + source + ':' + lineno + '</p>' +
+        '<p>Please screenshot this and send to support.</p>' +
+        '</div>';
+      return false;
+    };
+
+    window.onunhandledrejection = function (event) {
+      var root = document.getElementById('root');
+      root.innerHTML += '<div style="padding: 20px; color: orange; background: #fffbf0; border: 1px solid orange; margin: 20px; font-family: monospace;">' +
+        '<h3>UNHANDLED PROMISE REJECTION</h3>' +
+        '<p><strong>Reason:</strong> ' + event.reason + '</p>' +
+        '</div>';
+    };
+  </script>
+
   <script type="module" src="/index.tsx"></script>
 </body>
 
