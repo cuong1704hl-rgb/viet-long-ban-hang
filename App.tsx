@@ -777,10 +777,12 @@ const App: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center space-x-3 mb-6">
-              <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white font-black">S</div>
-              <span className="text-xl font-black tracking-tighter">SGE STORE</span>
+              <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white font-black overflow-hidden p-1">
+                <img src="/logo_vietlong.png" alt="Logo" className="w-full h-full object-contain" />
+              </div>
+              <span className="text-xl font-black tracking-tighter uppercase">VIỆT LONG</span>
             </div>
-            <p className="text-slate-400 font-medium max-w-sm">Hệ thống bán lẻ thiết bị công nghệ hàng đầu, tiên phong trong ứng dụng AI và điện toán đám mây vào trải nghiệm mua sắm.</p>
+            <p className="text-slate-400 font-medium max-w-sm">Hệ thống bán lẻ sản phẩm nông nghiệp hàng đầu, tiên phong trong ứng dụng AI và điện toán đám mây vào trải nghiệm mua sắm.</p>
           </div>
           <div>
             <h4 className="font-black mb-6 uppercase text-[10px] tracking-widest text-slate-400">Hỗ trợ</h4>
