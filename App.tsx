@@ -287,14 +287,14 @@ const App: React.FC = () => {
             <section className="animate-fade-in-up">
               <div className="mb-16 flex flex-col items-center text-center">
                 <div className="bg-indigo-50 text-indigo-600 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6 animate-float">
-                  New Generation 2024
+                  PHIÊN BẢN 2026
                 </div>
-                <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight leading-tight mb-6">
+                <h1 className="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight mb-6">
                   GIAN HÀNG SẢN PHẨM CỦA <br />
-                  <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent block mt-2 text-3xl md:text-5xl">CÔNG TY CỔ PHẦN ĐẦU TƯ VÀ XÂY DỰNG VIỆT LONG</span>
+                  <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent block mt-4 text-4xl md:text-6xl leading-tight">CÔNG TY CỔ PHẦN ĐẦU TƯ VÀ XÂY DỰNG VIỆT LONG</span>
                 </h1>
                 <p className="text-lg text-slate-500 max-w-2xl mx-auto font-medium mb-10">
-                  Khám phá bộ sưu tập thiết bị cao cấp nhất, cập nhật thời gian thực từ hệ thống kho dữ liệu đám mây.
+                  Khám phá sản phẩm nông nghiệp cao cấp nhất, cập nhật thời gian thực từ hệ thống kho dữ liệu đám mây.
                 </p>
 
                 {/* Advanced Search & Filter Bar */}
