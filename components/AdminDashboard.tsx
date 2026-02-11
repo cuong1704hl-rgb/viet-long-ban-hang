@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { Product, Order, OrderStatus, User } from '../types';
+import type { Product, Order, OrderStatus, User, SiteConfig } from '../types';
 import { OrderDetailModal } from './OrderDetailModal';
 
 interface AdminDashboardProps {
@@ -14,6 +14,8 @@ interface AdminDashboardProps {
     users?: User[];
     onDeleteUser?: (id: string) => void;
     onDeleteOrder?: (id: string) => void;
+    siteConfig?: SiteConfig;
+    onUpdateSiteConfig?: (config: SiteConfig) => void;
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
@@ -27,9 +29,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     onLogout,
     users = [],
     onDeleteUser,
-    onDeleteOrder
+
+    onDeleteOrder,
+    siteConfig,
+    onUpdateSiteConfig
 }) => {
-    const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'users'>('products');
+    const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'users' | 'settings'>('products');
     const [showAddProduct, setShowAddProduct] = useState(false);
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -137,6 +142,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             }`}
                     >
                         👥 Thành viên ({users.length})
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('settings')}
+                        className={`px-6 py-3 rounded-xl font-bold transition-all ${activeTab === 'settings'
+                            ? 'bg-indigo-600 text-white shadow-lg'
+                            : 'bg-white text-slate-600 hover:bg-slate-50'
+                            }`}
+                    >
+                        ⚙️ Cấu hình
                     </button>
                 </div>
 
@@ -312,14 +326,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                     </tr>
                                 </thead>
                                 <tbody>
-// Interface update needs to happen at top of file, but tool restricts single block.
-                                    // I will split this into 2 edits if needed, but the file view showed interface at top?
-                                    // Wait, I only viewed lines 300-408. I need to see the interface definition to update it comfortably or use multi_replace.
-                                    // I will use replace_file_content for the Button first, assuming I can update the interface separately or find it.
-                                    // Actually, let's use multi_replace to do both safely.
 
-                                    // ...Switching to multi_replace...
-                                    // Oops, I am in replace_file_content. I'll just change the table row first, then do another call for the interface.
 
                                     {orders.map((order) => (
                                         <tr key={order.id} className="border-b border-slate-100 hover:bg-slate-50">
@@ -425,6 +432,58 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                     ))}
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+                )}
+
+                {/* Settings Tab */}
+                {activeTab === 'settings' && siteConfig && onUpdateSiteConfig && (
+                    <div className="space-y-6">
+                        <h2 className="text-2xl font-bold text-slate-800">Cấu hình giao diện</h2>
+                        <div className="bg-white p-8 rounded-2xl shadow-lg">
+                            <div className="space-y-6">
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-2">Tiêu đề chính (Banner Title)</label>
+                                    <textarea
+                                        value={siteConfig.heroTitle}
+                                        onChange={(e) => onUpdateSiteConfig({ ...siteConfig, heroTitle: e.target.value })}
+                                        rows={3}
+                                        className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none font-bold"
+                                    />
+                                    <p className="text-xs text-slate-400 mt-1">Hỗ trợ xuống dòng.</p>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-2">Mô tả phụ (Subtitle)</label>
+                                    <textarea
+                                        value={siteConfig.heroSubtitle}
+                                        onChange={(e) => onUpdateSiteConfig({ ...siteConfig, heroSubtitle: e.target.value })}
+                                        rows={2}
+                                        className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-2">Ảnh nền banner (URL)</label>
+                                    <input
+                                        type="url"
+                                        value={siteConfig.bannerImage || ''}
+                                        onChange={(e) => onUpdateSiteConfig({ ...siteConfig, bannerImage: e.target.value })}
+                                        placeholder="https://example.com/banner.jpg"
+                                        className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-2">Chế độ giao diện</label>
+                                    <select
+                                        value={siteConfig.layoutMode}
+                                        onChange={(e) => onUpdateSiteConfig({ ...siteConfig, layoutMode: e.target.value as any })}
+                                        className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none"
+                                    >
+                                        <option value="default">Mặc định (Sáng)</option>
+                                        <option value="modern">Hiện đại (Gradient)</option>
+                                        <option value="minimal">Tối giản</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 )}

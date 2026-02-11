@@ -5,7 +5,7 @@ import { firebaseService } from './services/firebaseService';
 import { authService } from './services/authService';
 import { excelService } from './services/excelService';
 import Navbar from './components/Navbar';
-import AIChat from './components/AIChat';
+
 import { LoginModal } from './components/LoginModal';
 import { AdminDashboard } from './components/AdminDashboard';
 import { CustomerDashboard } from './components/CustomerDashboard';
@@ -18,6 +18,12 @@ const App: React.FC = () => {
     cart: [],
     isSheetSynced: false,
     users: [],
+    siteConfig: {
+      id: 'main-config',
+      heroTitle: 'GIAN HÀNG SẢN PHẨM CỦA\nCÔNG TY CỔ PHẦN ĐẦU TƯ VÀ XÂY DỰNG VIỆT LONG',
+      heroSubtitle: 'Khám phá sản phẩm nông nghiệp cao cấp nhất, cập nhật thời gian thực từ hệ thống kho dữ liệu đám mây.',
+      layoutMode: 'default'
+    }
   });
   const [currentPage, setCurrentPage] = useState('home');
   const [loading, setLoading] = useState(true);
@@ -40,6 +46,8 @@ const App: React.FC = () => {
         const currentUser = authService.getCurrentUser();
         const isAdmin = authService.isAdmin();
         const users = isAdmin ? await firebaseService.getUsers() : [];
+        const siteConfig = await firebaseService.getSiteConfig();
+
 
         setState(prev => ({
           ...prev,
@@ -47,7 +55,8 @@ const App: React.FC = () => {
           orders,
           currentUser,
           isSheetSynced: true,
-          users
+          users,
+          siteConfig
         }));
 
         setIsAdmin(isAdmin);
@@ -238,6 +247,11 @@ const App: React.FC = () => {
     setState(prev => ({ ...prev, orders: updatedOrders }));
   };
 
+  const handleUpdateSiteConfig = async (newConfig: any) => {
+    setState(prev => ({ ...prev, siteConfig: { ...prev.siteConfig, ...newConfig } }));
+    await firebaseService.saveSiteConfig({ ...state.siteConfig, ...newConfig });
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white">
@@ -280,6 +294,8 @@ const App: React.FC = () => {
           users={state.users}
           onDeleteUser={handleDeleteUser}
           onDeleteOrder={handleDeleteOrder}
+          siteConfig={state.siteConfig}
+          onUpdateSiteConfig={handleUpdateSiteConfig}
         />
       ) : (
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -289,12 +305,11 @@ const App: React.FC = () => {
                 <div className="bg-indigo-50 text-indigo-600 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6 animate-float">
                   PHIÊN BẢN 2026
                 </div>
-                <h1 className="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight mb-6">
-                  GIAN HÀNG SẢN PHẨM CỦA <br />
-                  <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent block mt-4 text-4xl md:text-6xl leading-tight">CÔNG TY CỔ PHẦN ĐẦU TƯ VÀ XÂY DỰNG VIỆT LONG</span>
+                <h1 className="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight mb-6 whitespace-pre-line">
+                  {state.siteConfig.heroTitle}
                 </h1>
                 <p className="text-lg text-slate-500 max-w-2xl mx-auto font-medium mb-10">
-                  Khám phá sản phẩm nông nghiệp cao cấp nhất, cập nhật thời gian thực từ hệ thống kho dữ liệu đám mây.
+                  {state.siteConfig.heroSubtitle}
                 </p>
 
                 {/* Advanced Search & Filter Bar */}
@@ -770,7 +785,7 @@ const App: React.FC = () => {
         </main>
       )}
 
-      <AIChat products={state.products} />
+
 
       {/* Footer Decoration */}
       <footer className="max-w-7xl mx-auto px-4 py-20 border-t border-slate-100">

@@ -47,6 +47,14 @@ export interface Order {
   phone: string;
 }
 
+export interface SiteConfig {
+    id: string;
+    heroTitle: string;
+    heroSubtitle: string;
+    bannerImage?: string; // Optional image URL for background
+    layoutMode: 'default' | 'modern' | 'minimal';
+}
+
 export interface AppState {
   products: Product[];
   orders: Order[];
@@ -54,6 +62,7 @@ export interface AppState {
   cart: CartItem[];
   isSheetSynced: boolean;
   users?: User[] | any[]; // Allow any for flexibility or strictly User[]
+  siteConfig: SiteConfig;
 }
 
 // Authentication types

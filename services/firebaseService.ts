@@ -11,13 +11,21 @@ import {
     onSnapshot
 } from "firebase/firestore";
 import { db } from "./firebaseConfig";
-import { Product, Order, OrderStatus, User, UserWithPassword } from "../types";
+import { Product, Order, OrderStatus, User, UserWithPassword, SiteConfig } from "../types";
 
 // Collection Names
 const COLLECTIONS = {
     PRODUCTS: 'products',
     ORDERS: 'orders',
-    USERS: 'users'
+    USERS: 'users',
+    SITE_CONFIG: 'site_config'
+};
+
+const DEFAULT_SITE_CONFIG: SiteConfig = {
+    id: 'main-config',
+    heroTitle: 'GIAN HÀNG SẢN PHẨM CỦA\nCÔNG TY CỔ PHẦN ĐẦU TƯ VÀ XÂY DỰNG VIỆT LONG',
+    heroSubtitle: 'Khám phá sản phẩm nông nghiệp cao cấp nhất, cập nhật thời gian thực từ hệ thống kho dữ liệu đám mây.',
+    layoutMode: 'default'
 };
 
 // Initial Data
@@ -224,6 +232,33 @@ export const firebaseService = {
             console.log("Admin seeded");
         } catch (e) {
             console.error("Seed admin error", e);
+        }
+    },
+
+    /**
+     * SITE CONFIG
+     */
+    async getSiteConfig(): Promise<SiteConfig> {
+        try {
+            const docSnap = await getDocs(query(collection(db, COLLECTIONS.SITE_CONFIG)));
+            
+            if (!docSnap.empty) {
+                 const data = docSnap.docs[0].data() as SiteConfig;
+                 return { ...data, id: 'main-config' };
+            }
+            return DEFAULT_SITE_CONFIG;
+        } catch (error) {
+            console.error("Error getting site config:", error);
+            return DEFAULT_SITE_CONFIG;
+        }
+    },
+
+    async saveSiteConfig(config: SiteConfig): Promise<void> {
+        try {
+            await setDoc(doc(db, COLLECTIONS.SITE_CONFIG, 'main-config'), config);
+        } catch (error) {
+            console.error("Error saving site config:", error);
+            throw error;
         }
     }
 };
