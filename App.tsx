@@ -22,7 +22,14 @@ const App: React.FC = () => {
       id: 'main-config',
       heroTitle: 'GIAN HÀNG SẢN PHẨM CỦA\nCÔNG TY CỔ PHẦN ĐẦU TƯ VÀ XÂY DỰNG VIỆT LONG',
       heroSubtitle: 'Khám phá sản phẩm nông nghiệp cao cấp nhất, cập nhật thời gian thực từ hệ thống kho dữ liệu đám mây.',
-      layoutMode: 'default'
+      layoutMode: 'default',
+      aboutTitle: 'Về Việt Long',
+      aboutContent: 'Hệ thống bán lẻ sản phẩm nông nghiệp hàng đầu, tiên phong trong ứng dụng AI và điện toán đám mây vào trải nghiệm mua sắm.',
+      contactEmail: 'contact@vietlong.com',
+      contactPhone: '0123 456 789',
+      contactAddress: 'Trụ sở chính: Hà Nội, Việt Nam',
+      footerText: '© 2026 Việt Long Corp. All rights reserved.',
+      showcaseMode: true
     }
   });
   const [currentPage, setCurrentPage] = useState('home');
@@ -312,6 +319,16 @@ const App: React.FC = () => {
                   {state.siteConfig.heroSubtitle}
                 </p>
 
+                {/* About Section - Feature Highlight */}
+                {state.siteConfig.showcaseMode && (
+                  <div className="mb-20 max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100 text-left">
+                    <h2 className="text-3xl font-black text-slate-900 mb-6">{state.siteConfig.aboutTitle || 'Về Chúng Tôi'}</h2>
+                    <p className="text-lg text-slate-600 leading-relaxed font-medium whitespace-pre-line">
+                      {state.siteConfig.aboutContent}
+                    </p>
+                  </div>
+                )}
+
                 {/* Advanced Search & Filter Bar */}
                 <div className="w-full max-w-4xl mx-auto mb-16 space-y-6">
                   <div className="relative group">
@@ -388,10 +405,13 @@ const App: React.FC = () => {
                         <h3 className="text-xl font-extrabold text-slate-900 mb-2 group-hover:text-indigo-600 transition-colors">{product.name}</h3>
                         <p className="text-sm text-slate-500 line-clamp-2 mb-6 h-10 font-medium">{product.description}</p>
                         <div className="flex items-center justify-between pt-4 border-t border-slate-50">
-                          <span className="text-2xl font-black text-slate-900">{(product.price).toLocaleString('vi-VN')} đ</span>
+                          <span className="text-2xl font-black text-slate-900">
+                             {(product.price).toLocaleString('vi-VN')} đ
+                             {state.siteConfig.showcaseMode && <span className="text-xs text-slate-400 font-medium block">Giá tham khảo</span>}
+                          </span>
                           <button
                             onClick={() => addToCart(product)}
-                            className="bg-indigo-600 text-white p-4 rounded-2xl hover:bg-slate-900 transition-all shadow-lg shadow-indigo-100 hover:scale-110 active:scale-95"
+                            className={`${state.siteConfig.showcaseMode ? 'bg-slate-900 text-white' : 'bg-indigo-600 text-white'} p-4 rounded-2xl hover:bg-indigo-600 transition-all shadow-lg shadow-indigo-100 hover:scale-110 active:scale-95`}
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -797,10 +817,15 @@ const App: React.FC = () => {
               </div>
               <span className="text-xl font-black tracking-tighter uppercase">VIỆT LONG</span>
             </div>
-            <p className="text-slate-400 font-medium max-w-sm">Hệ thống bán lẻ sản phẩm nông nghiệp hàng đầu, tiên phong trong ứng dụng AI và điện toán đám mây vào trải nghiệm mua sắm.</p>
+            <p className="text-slate-400 font-medium max-w-sm mb-6">{state.siteConfig.aboutContent?.slice(0, 150)}...</p>
+            <div className="text-slate-500 font-bold text-sm space-y-2">
+               <p>📧 {state.siteConfig.contactEmail || 'contact@vietlong.com'}</p>
+               <p>📞 {state.siteConfig.contactPhone || 'Checking...'}</p>
+               <p>🏢 {state.siteConfig.contactAddress || 'Vietnam'}</p>
+            </div>
           </div>
           <div>
-            <h4 className="font-black mb-6 uppercase text-[10px] tracking-widest text-slate-400">Hỗ trợ</h4>
+            <h4 className="font-black mb-6 uppercase text-[10px] tracking-widest text-slate-400">Thông tin</h4>
             <ul className="space-y-4 font-bold text-slate-600 text-sm">
               <li><a href="#" className="hover:text-indigo-600">Trung tâm trợ giúp</a></li>
               <li><a href="#" className="hover:text-indigo-600">Chính sách bảo hành</a></li>

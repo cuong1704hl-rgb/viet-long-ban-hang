@@ -483,6 +483,70 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                         <option value="minimal">Tối giản</option>
                                     </select>
                                 </div>
+                                <div>
+                                    <label className="flex items-center space-x-3 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={siteConfig.showcaseMode || false}
+                                            onChange={(e) => onUpdateSiteConfig({ ...siteConfig, showcaseMode: e.target.checked })}
+                                            className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500"
+                                        />
+                                        <span className="font-bold text-slate-700">Chế độ Giới thiệu Sản phẩm (Showcase Mode)</span>
+                                    </label>
+                                    <p className="text-xs text-slate-400 mt-1 ml-8">Khi bật, nút "Mua hàng" sẽ ít nổi bật hơn và thêm phần "Về chúng tôi" ra trang chủ.</p>
+                                </div>
+                                <div className="pt-6 border-t border-slate-100">
+                                    <h3 className="text-lg font-bold mb-4">Thông tin Giới thiệu & Liên hệ</h3>
+                                    <div className="space-y-4">
+                                         <div>
+                                            <label className="block text-sm font-medium text-slate-700 mb-2">Tiêu đề giới thiệu (About Title)</label>
+                                            <input
+                                                type="text"
+                                                value={siteConfig.aboutTitle || ''}
+                                                onChange={(e) => onUpdateSiteConfig({ ...siteConfig, aboutTitle: e.target.value })}
+                                                className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700 mb-2">Nội dung giới thiệu (About Content)</label>
+                                            <textarea
+                                                rows={4}
+                                                value={siteConfig.aboutContent || ''}
+                                                onChange={(e) => onUpdateSiteConfig({ ...siteConfig, aboutContent: e.target.value })}
+                                                className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none"
+                                            />
+                                        </div>
+                                         <div className="grid grid-cols-2 gap-4">
+                                             <div>
+                                                <label className="block text-sm font-medium text-slate-700 mb-2">Email liên hệ</label>
+                                                <input
+                                                    type="email"
+                                                    value={siteConfig.contactEmail || ''}
+                                                    onChange={(e) => onUpdateSiteConfig({ ...siteConfig, contactEmail: e.target.value })}
+                                                    className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none"
+                                                />
+                                            </div>
+                                             <div>
+                                                <label className="block text-sm font-medium text-slate-700 mb-2">Số điện thoại</label>
+                                                <input
+                                                    type="text"
+                                                    value={siteConfig.contactPhone || ''}
+                                                    onChange={(e) => onUpdateSiteConfig({ ...siteConfig, contactPhone: e.target.value })}
+                                                    className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none"
+                                                />
+                                            </div>
+                                         </div>
+                                         <div>
+                                            <label className="block text-sm font-medium text-slate-700 mb-2">Địa chỉ</label>
+                                            <input
+                                                type="text"
+                                                value={siteConfig.contactAddress || ''}
+                                                onChange={(e) => onUpdateSiteConfig({ ...siteConfig, contactAddress: e.target.value })}
+                                                className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

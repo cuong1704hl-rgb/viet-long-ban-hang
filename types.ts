@@ -53,6 +53,13 @@ export interface SiteConfig {
     heroSubtitle: string;
     bannerImage?: string; // Optional image URL for background
     layoutMode: 'default' | 'modern' | 'minimal';
+    aboutTitle?: string;
+    aboutContent?: string;
+    contactEmail?: string;
+    contactPhone?: string;
+    contactAddress?: string;
+    footerText?: string;
+    showcaseMode?: boolean; // toggle between store and showcase
 }
 
 export interface AppState {

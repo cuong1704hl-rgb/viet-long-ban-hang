@@ -25,7 +25,14 @@ const DEFAULT_SITE_CONFIG: SiteConfig = {
     id: 'main-config',
     heroTitle: 'GIAN HÀNG SẢN PHẨM CỦA\nCÔNG TY CỔ PHẦN ĐẦU TƯ VÀ XÂY DỰNG VIỆT LONG',
     heroSubtitle: 'Khám phá sản phẩm nông nghiệp cao cấp nhất, cập nhật thời gian thực từ hệ thống kho dữ liệu đám mây.',
-    layoutMode: 'default'
+    layoutMode: 'default',
+    aboutTitle: 'Về Việt Long',
+    aboutContent: 'Hệ thống bán lẻ sản phẩm nông nghiệp hàng đầu, tiên phong trong ứng dụng AI và điện toán đám mây vào trải nghiệm mua sắm.',
+    contactEmail: 'contact@vietlong.com',
+    contactPhone: '0123 456 789',
+    contactAddress: 'Trụ sở chính: Hà Nội, Việt Nam',
+    footerText: '© 2026 Việt Long Corp. All rights reserved.',
+    showcaseMode: true
 };
 
 // Initial Data
